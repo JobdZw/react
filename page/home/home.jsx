@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import './Home.css';
 import { CoinContext } from "../../src/context/CoinContext.jsx";
 import { Link } from 'react-router-dom';
-import { Chart } from "react-google-charts"; // Gebruik de Google Charts voor pie chart
+import { Chart } from "react-google-charts";
 
 const Home = () => {
     const { coins } = useContext(CoinContext);
@@ -28,7 +28,7 @@ const Home = () => {
         if (coins.length > 0) {
             const chartData = [
                 ["Coin", "Market Cap"], // Header voor google charts
-                ...coins.slice(0, 10).map((coin) => [coin.name, coin.market_cap]), // Top 10 munten
+                ...coins.slice(0, 20).map((coin) => [coin.name, coin.market_cap]),
             ];
             setPieChartData(chartData);
         }

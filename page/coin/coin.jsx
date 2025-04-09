@@ -10,17 +10,16 @@ const Coin = () => {
     const [selectedCoin, setSelectedCoin] = useState(null);
     const [chartData, setChartData] = useState(null);
 
-    // Zoek de geselecteerde coin in coins-lijst en haal de gegevens op
     useEffect(() => {
         const coinInfo = coins.find((coin) => coin.id === coinId);
         setSelectedCoin(coinInfo);
 
         if (coinInfo) {
-            // Haal de prijsgegevens per uur op voor 7 dagen
+
             fetch(`https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=eur&days=7`)
                 .then((response) => response.json())
                 .then((data) => {
-                    // Formatteer de data om per uur weer te geven
+
                     const formattedData = [
                         ["Tijd", "Prijs (EUR)"],
                         ...data.prices.map(([timestamp, price]) => [
@@ -31,7 +30,7 @@ const Coin = () => {
                             price,
                         ]),
                     ];
-                    setChartData(formattedData); // Stel de geformatteerde data in
+                    setChartData(formattedData);
                 })
                 .catch((error) => console.error("Fout bij het ophalen van gegevens:", error));
         }
@@ -74,7 +73,7 @@ const Coin = () => {
                         options={{
                             legend: { position: "bottom" },
                             backgroundColor: "#f9f9f9",
-                            hAxis: { title: "Tijd", gridlines: { count: 24 * 7 } }, // Per uur
+                            hAxis: { title: "Tijd", gridlines: { count: 24 * 7 } },
                             vAxis: { title: "Prijs (EUR)" },
                         }}
                     />
