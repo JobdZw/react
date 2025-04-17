@@ -5,29 +5,35 @@ import { Link } from 'react-router-dom';
 import { Chart } from "react-google-charts";
 
 const Home = () => {
-    const { coins } = useContext(CoinContext);
+    const { coins, favorites, toggleFavorite } = useContext(CoinContext); // Favorieten ophalen
     const [displayCoin, setDisplayCoin] = useState([]);
     const [searchText, setSearchText] = useState('');
     const [pieChartData, setPieChartData] = useState(null);
 
-    // Filtreeer de munten en werk de resultaten bij
+    // Update de Coinlijst en sorteer op favorieten of zoektekst
     useEffect(() => {
         if (searchText === '') {
-            setDisplayCoin(coins);
+            // Sorteer de coins: favorieten + overige munten
+            const sortedCoins = [
+                ...coins.filter(coin => favorites.includes(coin.id)), // Favorieten
+                ...coins.filter(coin => !favorites.includes(coin.id)), // Resterende coins
+            ];
+            setDisplayCoin(sortedCoins);
         } else {
+            // Filter de munten op zoektekst
             const filteredCoins = coins.filter(coin =>
                 coin.name.toLowerCase().includes(searchText.toLowerCase()) ||
                 coin.symbol.toLowerCase().includes(searchText.toLowerCase())
             );
             setDisplayCoin(filteredCoins);
         }
-    }, [coins, searchText]);
+    }, [coins, favorites, searchText]);
 
-    // Zet de dataset voor de Pie Chart
+    // Maak dataset voor de Pie Chart
     useEffect(() => {
         if (coins.length > 0) {
             const chartData = [
-                ["Coin", "Market Cap"], // Header voor google charts
+                ["Coin", "Market Cap"], // Google Charts header
                 ...coins.slice(0, 20).map((coin) => [coin.name, coin.market_cap]),
             ];
             setPieChartData(chartData);
@@ -41,22 +47,11 @@ const Home = () => {
     return (
         <div>
             <h2 style={{ color: "black" }}>Home Page</h2>
-            <div className="hero">
-                <h1>Home Page</h1>
-                <form onSubmit={(e) => e.preventDefault()}>
-                    <input
-                        type="text"
-                        placeholder="Search crypto"
-                        value={searchText}
-                        onChange={handleSearch}
-                    />
-                </form>
-            </div>
 
-            {/* Cirkelgrafiek sectie */}
+            {/* Cirkelgrafiek bovenaan */}
             {pieChartData && (
                 <div style={{ margin: "30px auto", maxWidth: "800px", background: "white", padding: "20px", borderRadius: "10px" }}>
-                    <h3 style={{ textAlign: "center" }}>Marktkapitalisatie Verdeling (Top 10)</h3>
+                    <h3 style={{ textAlign: "center" }}>Marktkapitalisatie Verdeling (Top 20)</h3>
                     <Chart
                         chartType="PieChart"
                         width="100%"
@@ -71,6 +66,20 @@ const Home = () => {
                 </div>
             )}
 
+            {/* Zoekbalk */}
+            <div className="hero">
+                <h1>Home Page</h1>
+                <form onSubmit={(e) => e.preventDefault()}>
+                    <input
+                        type="text"
+                        placeholder="Search crypto"
+                        value={searchText}
+                        onChange={handleSearch}
+                    />
+                </form>
+            </div>
+
+            {/* Tabel met coins / favorieten */}
             <div className="crypto-table">
                 <div className="table-layout">
                     <p>#</p>
@@ -86,6 +95,17 @@ const Home = () => {
                             <p>{item.market_cap_rank}</p>
                             <div>
                                 <img src={item.image} alt={item.name} />
+                                <button
+                                    onClick={() => toggleFavorite(item.id)} // Favoriet toggelen
+                                    style={{
+                                        background: "none",
+                                        border: "none",
+                                        cursor: "pointer",
+                                        color: favorites.includes(item.id) ? "yellow" : "gray" // Favoriet markeren
+                                    }}
+                                >
+                                    ★
+                                </button>
                                 <Link to={`/coin/${item.id}`} style={{ color: "white" }}>
                                     {item.name + " - " + item.symbol}
                                 </Link>
@@ -98,7 +118,7 @@ const Home = () => {
                         </div>
                     ))
                 ) : (
-                    <p style={{ textAlign: "center", color: "gray" }}>Geen resultaten gevonden...</p>
+                    <p style={{ color: "white", textAlign: "center" }}>Geen munten gevonden</p>
                 )}
             </div>
         </div>
